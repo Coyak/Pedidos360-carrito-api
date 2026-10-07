@@ -37,6 +37,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Endpoint público de diagnóstico
                 .requestMatchers(HttpMethod.GET, "/api/carrito/status").permitAll()
+                // Endpoint de pedidos accesible (extrae claims de JWT si está presente)
+                .requestMatchers(HttpMethod.POST, "/api/carrito/pedidos").permitAll()
                 // Peticiones preflight OPTIONS para compatibilidad CORS y API Gateway
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Todos los demás endpoints transaccionales requieren autenticación

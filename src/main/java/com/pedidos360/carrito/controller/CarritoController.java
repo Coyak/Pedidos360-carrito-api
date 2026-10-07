@@ -3,6 +3,7 @@ package com.pedidos360.carrito.controller;
 import com.pedidos360.carrito.dto.ItemPedidoDTO;
 import com.pedidos360.carrito.dto.PedidoRequestDTO;
 import com.pedidos360.carrito.dto.PedidoResponseDTO;
+import com.pedidos360.carrito.messaging.PedidoEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +19,12 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/carrito")
 public class CarritoController {
+
+    private final PedidoEventPublisher pedidoEventPublisher;
+
+    public CarritoController(PedidoEventPublisher pedidoEventPublisher) {
+        this.pedidoEventPublisher = pedidoEventPublisher;
+    }
 
     /**
      * Endpoint público de diagnóstico del microservicio
@@ -83,6 +90,9 @@ public class CarritoController {
                 LocalDateTime.now(),
                 items
         );
+
+        // Publicación asíncrona a RabbitMQ (TopicExchange -> Cola de Procesamiento)
+        pedidoEventPublisher.publicarPedidoCreado(response);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
